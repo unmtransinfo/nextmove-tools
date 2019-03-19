@@ -1,0 +1,178 @@
+<?xml version="1.0" ?>
+<project name="all" basedir="." default="nextmove">
+  <property environment="env" />
+  <property name="srcdir" location="${basedir}" />
+  <property name="docdir" location="${basedir}/doc" />
+  <property name="myname" value="Jeremy J Yang" />
+  <property name="org" value="UNM Translational Informatics Division" />
+  <description>
+	Libraries, applications, and webapps.
+	${myname}, ${org}
+	Note: "ant -Ddebug=true" enables "-Xlint:deprecation".
+  </description>
+  <tstamp>
+    <format property="timestamp" pattern="yyyy-MM-dd HH:mm:ss" />
+    <format property="date" pattern="yyyy-MM-dd" />
+    <format property="year" pattern="yyyy" />
+  </tstamp>
+  <condition property="isMac">   <equals arg1="${os.name}" arg2="Mac OS X"/> </condition>
+  <condition property="isLinux"> <equals arg1="${os.name}" arg2="Linux"/>    </condition>
+  <condition property="jtgt" value="-target 1.7" else="">
+    <equals arg1="${ant.java.version}" arg2="1.8"/>   
+  </condition>
+  <condition property="jsrc" value="-source 1.7" else="">
+    <equals arg1="${ant.java.version}" arg2="1.8"/>   
+  </condition>
+  <condition property="deprecation" value="-Xlint:deprecation" else="-Xlint:-deprecation">
+    <isset property="debug"/>
+  </condition>
+  <target name="configIfLinux" if="isLinux">
+    <!-- echo message="deprecation: ${deprecation}"/ -->
+    <condition property="appdir" value="${user.home}/app" else="/home/app">
+      <equals arg1="${env.HOSTNAME}" arg2="cheminfov.informatics.indiana.edu"/>
+    </condition>
+    <property name="javadir" location="/usr/share/java" />
+    <property name="datadir" location="/home/data" />
+    <presetdef name="jcompile">
+      <javac debug="true" includeantruntime="false" >
+        <compilerarg line="${jsrc}" />
+        <compilerarg line="${jtgt}" />
+        <compilerarg value="${deprecation}" />
+        <compilerarg value="-Xlint:-unchecked" />
+        <compilerarg value="-nowarn" />
+      </javac>
+    </presetdef>
+  </target>
+
+  <target name="configIfMac" if="isMac">
+    <!-- echo message="deprecation: ${deprecation}"/ -->
+    <property name="includeantruntime" value="false" /> <!-- Kludge for Mac -->
+    <property name="appdir" location="/Users/app" />
+    <property name="javadir" location="/usr/share/java" /> <!-- Fix this -->
+    <property name="datadir" location="/Users/data" />
+    <presetdef name="jcompile">
+      <javac debug="true" includeantruntime="false" >
+        <compilerarg line="${jsrc}" />
+        <compilerarg line="${jtgt}" />
+        <compilerarg value="${deprecation}" />
+        <compilerarg value="-Xlint:-unchecked" />
+        <compilerarg value="-nowarn" />
+      </javac>
+    </presetdef>
+  </target>
+
+  <target name="config" depends="configIfMac,configIfLinux"
+   description="Platform-specific configuration." >
+    <echo message="OS: ${os.name} ${os.version} [${os.arch}]" />
+    <echo message="java version: ${ant.java.version} (${java.home})"/>
+    <echo message="hostname: ${env.HOSTNAME}" />
+    <echo message="home: ${user.home}" />
+    <echo message="appdir: ${appdir}"/>
+    <echo message="${jsrc} ${jtgt}"/>
+    <echo message="To list targets: ant -p"/>
+    <property name="libdir" location="${basedir}/lib" />
+
+    <!-- dependency jars -->
+    <property name="libj2ee" location="${appdir}/lib/servlet.jar" />
+    <property name="libcos" location="${appdir}/lib/cos.jar" />
+    <property name="libaxis" location="${appdir}/lib/axis.jar" />
+
+    <property name="libcdk" location="${appdir}/lib/cdk-1.5.13-SNAPSHOT.jar" />
+    <property name="libcdk_depict" location="${appdir}/lib/cdk-depict-1.5.13-SNAPSHOT.jar" />
+    <property name="libleadmine" location="${appdir}/nextmove/leadmine-3.12/LeadMine/leadmine-3.12.jar" />
+
+    <!-- homegrown libs -->
+    <property name="lib_unm_http" location="${appdir}/lib/unm_biocomp_http.jar" />
+    <property name="lib_unm_util" location="${appdir}/lib/unm_biocomp_util.jar" /> 
+
+    <!-- target jars -->
+    <property name="nextmove" location="${libdir}/unm_biocomp_nextmove.jar" />
+  
+    <!-- target wars -->
+    <property name="nextmove_war" location="${libdir}/nextmove.war" />
+  
+    <property name="classpath" location="${srcdir};${libcos};${libaxis};${libj2ee}" />
+  </target>
+
+  <target name="nextmove" description="NextMove JAR" depends="config">
+    <jcompile srcdir="${basedir}/edu/unm/health/biocomp/nextmove" includes="*.java" >
+      <classpath>
+        <pathelement path="${basedir}/edu/unm/health/biocomp/nextmove" />
+        <pathelement location="${libleadmine}" />
+        <pathelement location="${lib_unm_util}" />
+        <pathelement location="${lib_unm_http}" />
+        <pathelement location="${libcos}" />
+        <pathelement location="${libj2ee}" />
+      </classpath>
+    </jcompile>
+    <jar destfile="${nextmove}" >
+      <fileset dir="${basedir}"
+        includes="edu/unm/health/biocomp/nextmove/*.class,edu/unm/health/biocomp/nextmove/*.java" />
+      <manifest>
+        <attribute name="Author" value="${myname}" />
+        <attribute name="Builder" value="${user.name}" />
+      </manifest>
+    </jar>
+  </target>
+
+  <target name="nextmove_war" depends="config,nextmove"
+        description="WAR for deployment of NextMove-based webapps">
+    <war destfile="${nextmove_war}" webxml="edu/unm/health/biocomp/nextmove/web.xml">
+      <zipfileset src="${libdir}/unm_biocomp_nextmove.jar" includes="**/*.class" prefix="WEB-INF/classes" />
+      <lib dir="${appdir}/lib" includes="unm_biocomp_http.jar" />
+      <lib dir="${appdir}/lib" includes="unm_biocomp_util.jar" />
+      <classes dir="${basedir}/properties" includes="*.properties" />
+      <zipfileset dir="${basedir}/js" includes="*.js" prefix="js" />
+      <zipfileset dir="${basedir}/css" includes="*.css" prefix="css" />
+      <zipfileset dir="${basedir}/images" prefix="images" />
+      <lib dir="${appdir}/nextmove/leadmine-3.12/LeadMine/" includes="*.jar" />
+      <lib dir="${appdir}/lib" includes="cos.jar" />
+      <manifest>
+        <attribute name="Author" value="${myname}" />
+        <attribute name="Organization" value="${org}" />
+        <attribute name="Builder" value="${user.name}" />
+        <attribute name="Date" value="${timestamp}" />
+      </manifest>
+    </war>
+    <echo message="NextMove WAR, includes local dependencies." />
+    <echo message="File: ${nextmove_war}" />
+    <echo message="Author: ${myname}" />
+    <echo message="Organization: ${org}" />
+    <echo message="Builder: ${user.name}" />
+    <echo message="Date: ${timestamp}" />
+  </target>
+
+  <!-- Documentation: -->
+
+  <presetdef name="jdoc">
+    <javadoc author="true" version="true" use="true" classpath="${classpath}"
+        noqualifier="all" additionalparam="-quiet">
+      <bottom><![CDATA[<I>Copyright &#169; ${year}, ${org}</I>]]></bottom>
+    </javadoc>
+  </presetdef>
+
+  <target name="doc" depends="config" description="Javadoc">
+    <jdoc windowtitle="Nextmove-based API" destdir="${docdir}/nextmove"> 
+      <classpath>
+        <pathelement location="${libleadmine}" />
+        <pathelement location="${lib_unm_http}" />
+        <pathelement location="${lib_unm_util}" />
+      </classpath>
+      <fileset dir="${srcdir}" includes="edu/unm/health/biocomp/nextmove/*.java" />
+      <doctitle><![CDATA[<H1>Nextmove-based API</H1>]]></doctitle>
+    </jdoc>
+  </target>
+
+  <!-- Misc/util targets: -->
+
+  <target name="clean" description="Clean all classes, JARs, WARs and javadocs." >
+    <delete>
+      <fileset dir="${basedir}" includes="**/*.class"/>
+      <fileset dir="${basedir}" includes="**/*.jar"/>
+      <fileset dir="${basedir}" includes="**/*.war"/>
+    </delete>
+    <delete dir="${basedir}/lib" />
+    <delete dir="${basedir}/doc" />
+  </target>
+
+</project>

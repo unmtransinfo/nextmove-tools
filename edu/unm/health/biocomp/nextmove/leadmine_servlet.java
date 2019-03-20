@@ -446,6 +446,7 @@ public class leadmine_servlet extends HttpServlet
     fob.write(tsvOut.getTsvHeader());
     fob.flush();
 
+    // Requires that the NextMove cdkdepict.war webapp is deployed.
     String cdkdepict_url=("http://"+SERVERNAME+"/tomcat/cdkdepict/depict/cow/png");
 
     int fixcount=0;
@@ -616,6 +617,8 @@ public class leadmine_servlet extends HttpServlet
     "<LI><B>F</B>: formula\n"+
     "<LI><B>G</B>: generic term\n"+
     "</UL>\n"+
+    "<P>\n"+
+    "Depictions by <A HREF=\"https://cdk.github.io/\">CDK</A> via NextMove cdkdepict webapp.\n"+
     "<P>\n"+
     "<P>Sincere thanks to NextMove Software for their excellent software and support.\n"+
     "<P>\n"+

@@ -176,6 +176,7 @@ public class leadmine_utils
     int i_input=0;
     int n_ner_none=0;
     int n_ner=0;
+    int n_err=0;
     String line=null;
     line=buff.readLine(); //header
     String[] tags = line.split("\t");
@@ -185,9 +186,15 @@ public class leadmine_utils
       ++i_input;
       String[] vals = line.split("\t");
       String doctext = null;
+      if (vals.length < textcol) {
+        System.err.println("ERROR: insufficient columns ("+vals.length+"<"+textcol+"): ["+i_input+"] \""+line+"\"");
+        ++n_err;
+        continue;
+      }
       try { doctext = vals[textcol-1]; }
       catch (Exception e) {
         System.err.println("ERROR: badly formed line: ["+i_input+"] \""+line+"\" ; Exception ("+e.toString()+")");
+        ++n_err;
         continue;
       }
       String idtext = (idcol==null)?(""+i_input):(vals[idcol-1]);
@@ -205,7 +212,7 @@ public class leadmine_utils
       n_ner+=n_ner_this;
       if (n_ner_this==0) {
         if (verbose>2)
-          System.err.println("NOTE: NER fails: ["+i_input+"] \""+doctext+"\"");
+          System.err.println("NOTE: NER_none: ["+i_input+"] \""+doctext+"\"");
         ++n_ner_none;
       }
     }
@@ -214,7 +221,8 @@ public class leadmine_utils
     fos.close();
     System.err.println("Input docs: "+i_input);
     System.err.println("Output NER: "+n_ner);
-    System.err.println("NER fails: "+n_ner_none);
+    System.err.println("NER_none count: "+n_ner_none);
+    System.err.println("Errors: "+n_err);
     System.err.println("total elapsed time: "+time_utils.TimeDeltaStr(t_0,new java.util.Date()));
   }
 }

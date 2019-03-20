@@ -17,7 +17,7 @@ LIBDIR=$APPDIR/lib
 CLASSPATH=$LIBDIR/unm_biocomp_nextmove.jar
 CLASSPATH=$CLASSPATH:$LIBDIR/unm_biocomp_util.jar
 #CLASSPATH=$CLASSPATH:$APPDIR/nextmove/leadmine-3.12/LeadMine/leadmine-3.12.jar
-CLASSPATH=$CLASSPATH:$APPDIR/nextmove/leadmine-3.13/LeadMine/leadmine-3.13.jar
+CLASSPATH=$CLASSPATH:$APPDIR/nextmove/leadmine-3.13/bin/leadmine.jar
 #
 #
 $JAVA \

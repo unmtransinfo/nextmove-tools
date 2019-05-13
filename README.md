@@ -8,6 +8,8 @@ documentation.
 
 
 ```
+mvn exec:java -Dexec.mainClass="edu.unm.health.biocomp.nextmove.leadmine_utils"
+
 leadmine_utils - NextMove LeadMine chemical entity recognition
 usage: leadmine_utils [options]
   required:
@@ -45,4 +47,4 @@ mvn install:install-file -Dfile=leadmine-3.14.1.jar -DgroupId=nextmove -Dartifac
 
 Developed at the [UNM](http://www.unm.edu) Translational Informatics Division.
 
-![Alt](/images/biocomp_logo_only.gif "UNM icon")
+![Alt](/src/main/webapp/images/biocomp_logo_only.gif "UNM icon")

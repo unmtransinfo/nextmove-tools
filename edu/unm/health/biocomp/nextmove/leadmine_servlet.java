@@ -17,8 +17,8 @@ import com.oreilly.servlet.*; //Base64Encoder, Base64Decoder
 import com.nextmovesoftware.leadmine.*; // LeadMine, Entity, EntityCollector, TsvOutput
 import com.nextmovesoftware.leadmine.TsvOutput.*; // TsvOutputBuilder
 
-import edu.unm.health.biocomp.http.*;
 import edu.unm.health.biocomp.util.*;
+import edu.unm.health.biocomp.util.http.*;
 
 /**	Name to molecule conversion with NextMove LeadMine.
 	@author Jeremy J Yang

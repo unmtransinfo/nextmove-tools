@@ -76,7 +76,7 @@ public class leadmine_servlet extends HttpServlet
     {
       response.setContentType("text/html");
       out=response.getWriter();
-      out.print(HtmUtils.HeaderHtm(SERVLETNAME,jsincludes,cssincludes,JavaScript(),color1,request));
+      out.print(HtmUtils.HeaderHtm(SERVLETNAME, jsincludes, cssincludes, JavaScript(), "", color1, request, "tomcat"));
       out.print(HtmUtils.FooterHtm(errors,true));
     }
     else if (mrequest!=null)         //method=POST, normal operation
@@ -86,7 +86,7 @@ public class leadmine_servlet extends HttpServlet
         response.setContentType("text/html");
         out=response.getWriter();
         Name2Mol(mrequest,response);
-        out.print(HtmUtils.HeaderHtm(SERVLETNAME,jsincludes,cssincludes,JavaScript(),color1,request));
+        out.print(HtmUtils.HeaderHtm(SERVLETNAME, jsincludes, cssincludes, JavaScript(), "", color1, request, "tomcat"));
         out.println(FormHtm(mrequest,response));
         out.println(HtmUtils.OutputHtm(outputs));
         out.print(HtmUtils.FooterHtm(errors,true));
@@ -101,7 +101,7 @@ public class leadmine_servlet extends HttpServlet
       {
         response.setContentType("text/html");
         out=response.getWriter();
-        out.print(HtmUtils.HeaderHtm(SERVLETNAME,jsincludes,cssincludes,JavaScript(),color1,request));
+        out.print(HtmUtils.HeaderHtm(SERVLETNAME, jsincludes, cssincludes, JavaScript(), "", color1, request, "tomcat"));
         out.println(HelpHtm());
         out.print(HtmUtils.FooterHtm(errors,true));
       }
@@ -121,7 +121,7 @@ public class leadmine_servlet extends HttpServlet
       {
         response.setContentType("text/html");
         out=response.getWriter();
-        out.print(HtmUtils.HeaderHtm(SERVLETNAME,jsincludes,cssincludes,JavaScript(),color1,request));
+        out.print(HtmUtils.HeaderHtm(SERVLETNAME, jsincludes, cssincludes, JavaScript(), "", color1, request, "tomcat"));
         out.println(FormHtm(mrequest,response));
         out.println("<SCRIPT>go_init(window.document.mainform)</SCRIPT>");
         out.print(HtmUtils.FooterHtm(errors,true));

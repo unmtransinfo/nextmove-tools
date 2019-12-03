@@ -1,10 +1,14 @@
-# Nextmove-based Tools
+# NextMove-based Tools
 
 
 Convenience and integration tools build with the NextMove API, a commercial product,
 including a web app utility, and command line app. Refer to
 [NextMove](http://nextmovesoftware.com "NextMove website")
 documentation.
+
+## Dependencies
+
+* [NextMove](http://nextmovesoftware.com "NextMove website") LeadMine
 
 
 ```
@@ -39,6 +43,21 @@ usage: leadmine_utils [options]
 mvn clean install
 ```
 
+## Maven local repo for LeadMine JAR
+
+Not the only or maybe best way, but one way to configure Maven for a 
+local dependency is via local HTTP Maven repository. See pom.xml, containing
+specification:
+
+```
+<repositories>
+  <repository>
+    <id>local-repo</id>
+    <url>http://localhost/.m2</url>
+  </repository>
+</repositories>
+```
+
 Libs may be installed into local repo thus:
 
 ```
@@ -47,4 +66,3 @@ mvn install:install-file -Dfile=leadmine-3.14.1.jar -DgroupId=nextmove -Dartifac
 
 Developed at the [UNM](http://www.unm.edu) Translational Informatics Division.
 
-![Alt](/src/main/webapp/images/biocomp_logo_only.gif "UNM icon")

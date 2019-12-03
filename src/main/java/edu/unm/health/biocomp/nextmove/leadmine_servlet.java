@@ -46,6 +46,7 @@ public class leadmine_servlet extends HttpServlet
   private static byte[] inbytes=null;
   private static ArrayList<String> texts=new ArrayList<String>();
   private static String color1="#EEEEEE";
+  private static String PROXY_PREFIX=null;   // configured in web.xml
 
   /////////////////////////////////////////////////////////////////////////////
   public void doPost(HttpServletRequest request,HttpServletResponse response)
@@ -68,16 +69,16 @@ public class leadmine_servlet extends HttpServlet
     }
 
     // main logic:
-    ArrayList<String> cssincludes = new ArrayList<String>(Arrays.asList("biocomp.css"));
-    ArrayList<String> jsincludes = new ArrayList<String>(Arrays.asList("biocomp.js","ddtip.js"));
+    ArrayList<String> cssincludes = new ArrayList<String>(Arrays.asList(PROXY_PREFIX+CONTEXTPATH+"/css/biocomp.css"));
+    ArrayList<String> jsincludes = new ArrayList<String>(Arrays.asList(PROXY_PREFIX+CONTEXTPATH+"/js/biocomp.js", PROXY_PREFIX+CONTEXTPATH+"/js/ddtip.js"));
 
     boolean ok=initialize(request,mrequest);
     if (!ok)
     {
       response.setContentType("text/html");
       out=response.getWriter();
-      out.print(HtmUtils.HeaderHtm(SERVLETNAME,jsincludes,cssincludes,JavaScript(),color1,request));
-      out.print(HtmUtils.FooterHtm(errors,true));
+      out.print(HtmUtils.HeaderHtm(SERVLETNAME, jsincludes, cssincludes, JavaScript(), "", color1, request));
+      out.print(HtmUtils.FooterHtm(errors, true));
     }
     else if (mrequest!=null)         //method=POST, normal operation
     {
@@ -85,11 +86,11 @@ public class leadmine_servlet extends HttpServlet
       {
         response.setContentType("text/html");
         out=response.getWriter();
-        Name2Mol(mrequest,response);
-        out.print(HtmUtils.HeaderHtm(SERVLETNAME,jsincludes,cssincludes,JavaScript(),color1,request));
-        out.println(FormHtm(mrequest,response));
+        Name2Mol(mrequest, response);
+        out.print(HtmUtils.HeaderHtm(SERVLETNAME, jsincludes, cssincludes, JavaScript(), "", color1, request));
+        out.println(FormHtm(mrequest, response));
         out.println(HtmUtils.OutputHtm(outputs));
-        out.print(HtmUtils.FooterHtm(errors,true));
+        out.print(HtmUtils.FooterHtm(errors, true));
       }
     }
     else
@@ -101,38 +102,38 @@ public class leadmine_servlet extends HttpServlet
       {
         response.setContentType("text/html");
         out=response.getWriter();
-        out.print(HtmUtils.HeaderHtm(SERVLETNAME,jsincludes,cssincludes,JavaScript(),color1,request));
+        out.print(HtmUtils.HeaderHtm(SERVLETNAME, jsincludes, cssincludes, JavaScript(), "", color1, request));
         out.println(HelpHtm());
-        out.print(HtmUtils.FooterHtm(errors,true));
+        out.print(HtmUtils.FooterHtm(errors, true));
       }
       else if (downloadtxt!=null && downloadtxt.length()>0) // POST param
       {
         ServletOutputStream ostream=response.getOutputStream();
-        HtmUtils.DownloadString(response,ostream,downloadtxt,
+        HtmUtils.DownloadString(response, ostream, downloadtxt,
           request.getParameter("fname"));
       }
       else if (downloadfile!=null && downloadfile.length()>0) // POST param
       {
         ServletOutputStream ostream=response.getOutputStream();
-        HtmUtils.DownloadFile(response,ostream,downloadfile,
+        HtmUtils.DownloadFile(response, ostream, downloadfile,
           request.getParameter("fname"));
       }
       else      // GET method, initial invocation of servlet w/ no params
       {
         response.setContentType("text/html");
         out=response.getWriter();
-        out.print(HtmUtils.HeaderHtm(SERVLETNAME,jsincludes,cssincludes,JavaScript(),color1,request));
-        out.println(FormHtm(mrequest,response));
+        out.print(HtmUtils.HeaderHtm(SERVLETNAME, jsincludes, cssincludes, JavaScript(), "", color1, request));
+        out.println(FormHtm(mrequest, response));
         out.println("<SCRIPT>go_init(window.document.mainform)</SCRIPT>");
-        out.print(HtmUtils.FooterHtm(errors,true));
+        out.print(HtmUtils.FooterHtm(errors, true));
       }
     }
   }
   /////////////////////////////////////////////////////////////////////////////
   // /cdkdepict/depict/cow/png?smi=NCCc1cc(O)c(O)cc1
   // cow|bow, svg|png
-  private boolean initialize(HttpServletRequest request,MultipartRequest mrequest)
-      throws IOException,ServletException
+  private boolean initialize(HttpServletRequest request, MultipartRequest mrequest)
+      throws IOException, ServletException
   {
     SERVLETNAME=this.getServletName();
     params.clear();
@@ -140,15 +141,15 @@ public class leadmine_servlet extends HttpServlet
     errors.clear();
 
     String logo_htm="<TABLE CELLSPACING=5 CELLPADDING=5><TR><TD>";
-    String imghtm=("<IMG BORDER=0 SRC=\"/tomcat"+CONTEXTPATH+"/images/biocomp_logo_only.gif\">");
+    String imghtm=("<IMG BORDER=0 SRC=\""+PROXY_PREFIX+CONTEXTPATH+"/images/biocomp_logo_only.gif\">");
     String tiphtm=(APPNAME+" web app from UNM Translational Informatics.");
     String href=("http://datascience.unm.edu/");
-    logo_htm+=(HtmUtils.HtmTipper(imghtm,tiphtm,href,200,"white"));
+    logo_htm+=(HtmUtils.HtmTipper(imghtm, tiphtm, href, 200, "white"));
     logo_htm+="</TD><TD>";
-    imghtm=("<IMG BORDER=0 HEIGHT=90 SRC=\"/tomcat"+CONTEXTPATH+"/images/nextmove.png\">");
+    imghtm=("<IMG BORDER=0 HEIGHT=90 SRC=\""+PROXY_PREFIX+CONTEXTPATH+"/images/nextmove.png\">");
     tiphtm=("LeadMine from NextMove.");
     href=("http://www.nextmovesoftware.com");
-    logo_htm+=(HtmUtils.HtmTipper(imghtm,tiphtm,href,200,"white"));
+    logo_htm+=(HtmUtils.HtmTipper(imghtm, tiphtm, href, 200, "white"));
     logo_htm+="</TD></TR></TABLE>";
     errors.add(logo_htm);
 
@@ -172,7 +173,7 @@ public class leadmine_servlet extends HttpServlet
     if (!logfile.exists())
     {
       logfile.createNewFile();
-      logfile.setWritable(true,true);
+      logfile.setWritable(true, true);
       PrintWriter out_log=new PrintWriter(logfile);
       out_log.println("date\tip\tN");
       out_log.flush();
@@ -201,13 +202,13 @@ public class leadmine_servlet extends HttpServlet
     }
     if (n_lines>2)
     {
-      calendar.set(Integer.parseInt(startdate.substring(0,4)),
-               Integer.parseInt(startdate.substring(4,6))-1,
-               Integer.parseInt(startdate.substring(6,8)),
-               Integer.parseInt(startdate.substring(8,10)),
-               Integer.parseInt(startdate.substring(10,12)),0);
+      calendar.set(Integer.parseInt(startdate.substring(0, 4)),
+               Integer.parseInt(startdate.substring(4, 6))-1,
+               Integer.parseInt(startdate.substring(6, 8)),
+               Integer.parseInt(startdate.substring(8, 10)),
+               Integer.parseInt(startdate.substring(10, 12)),0);
 
-      DateFormat df=DateFormat.getDateInstance(DateFormat.FULL,Locale.US);
+      DateFormat df=DateFormat.getDateInstance(DateFormat.FULL, Locale.US);
       errors.add("since "+df.format(calendar.getTime())+", times used: "+(n_lines-1));
     }
 
@@ -227,7 +228,7 @@ public class leadmine_servlet extends HttpServlet
     {
       String key=(String)e.nextElement();
       if (mrequest.getParameter(key)!=null)
-        params.setVal(key,mrequest.getParameter(key));
+        params.setVal(key, mrequest.getParameter(key));
     }
 
     if (params.isChecked("verbose"))
@@ -238,7 +239,7 @@ public class leadmine_servlet extends HttpServlet
     if (params.isChecked("txt2mol"))
     {
       File fin=mrequest.getFile("ifile");
-      String intxt=params.getVal("intxt").replaceFirst("[\\s]+$","");
+      String intxt=params.getVal("intxt").replaceFirst("[\\s]+$", "");
       if (fin!=null)
       {
         FileInputStream fis=new FileInputStream(fin);
@@ -251,7 +252,7 @@ public class leadmine_servlet extends HttpServlet
           {
             asize*=2;
             byte[] tmp=new byte[asize];
-            System.arraycopy(inbytes,0,tmp,0,size);
+            System.arraycopy(inbytes, 0, tmp, 0, size);
             inbytes=tmp;
           }
           inbytes[size]=(byte)b;
@@ -259,12 +260,12 @@ public class leadmine_servlet extends HttpServlet
         }
         fin.delete();
         byte[] tmp=new byte[size];
-        System.arraycopy(inbytes,0,tmp,0,size);
+        System.arraycopy(inbytes, 0, tmp, 0, size);
         inbytes=tmp;
         if (params.isChecked("file2txt"))
         {
-          intxt=new String(inbytes,"utf-8");
-          params.setVal("intxt",intxt);
+          intxt=new String(inbytes, "utf-8");
+          params.setVal("intxt", intxt);
         }
       }
       else if (intxt.length()>0)
@@ -276,7 +277,7 @@ public class leadmine_servlet extends HttpServlet
         errors.add("ERROR: no input texts");
         return false;
       }
-      intxt=new String(inbytes,"utf-8");
+      intxt=new String(inbytes, "utf-8");
       buff=new BufferedReader(new StringReader(intxt));
       texts.clear();
       while ((line=buff.readLine())!=null)
@@ -299,8 +300,8 @@ public class leadmine_servlet extends HttpServlet
     return true;
   }
   /////////////////////////////////////////////////////////////////////////////
-  private static String FormHtm(MultipartRequest mrequest,HttpServletResponse response)
-      throws IOException,ServletException
+  private static String FormHtm(MultipartRequest mrequest, HttpServletResponse response)
+      throws IOException, ServletException
   {
 
     String max_corr_dist_1=""; String max_corr_dist_2="";
@@ -375,10 +376,10 @@ public class leadmine_servlet extends HttpServlet
     return htm;
   }
   /////////////////////////////////////////////////////////////////////////////
-  private static void Name2Mol(MultipartRequest mrequest,HttpServletResponse response)
-      throws IOException,ServletException
+  private static void Name2Mol(MultipartRequest mrequest, HttpServletResponse response)
+      throws IOException, ServletException
   {
-     File fout = File.createTempFile(SERVLETNAME,"_out.tsv",null);
+     File fout = File.createTempFile(SERVLETNAME, "_out.tsv", null);
      OutputStream fos = new FileOutputStream(fout);
      BufferedWriter fob = new BufferedWriter(new OutputStreamWriter(fos));
 
@@ -447,7 +448,7 @@ public class leadmine_servlet extends HttpServlet
     fob.flush();
 
     // Requires that the NextMove cdkdepict.war webapp is deployed.
-    String cdkdepict_url=("http://"+SERVERNAME+"/tomcat/cdkdepict/depict/cow/png");
+    String cdkdepict_url=(PROXY_PREFIX+"/cdkdepict/depict/cow/png");
 
     int fixcount=0;
     int n_ner=0;
@@ -535,7 +536,7 @@ public class leadmine_servlet extends HttpServlet
     }
 
     PrintWriter out_log=new PrintWriter(new BufferedWriter(new FileWriter(logfile,true)));
-    out_log.printf("%s\t%s\t%d\n",datestr,REMOTEHOST,texts.size());
+    out_log.printf("%s\t%s\t%d\n", datestr, REMOTEHOST, texts.size());
     out_log.close();
 
     return;
@@ -647,16 +648,16 @@ public class leadmine_servlet extends HttpServlet
     if (UPLOADDIR==null)
       throw new ServletException("Please supply UPLOADDIR parameter.");
     LOGDIR=conf.getInitParameter("LOGDIR")+CONTEXTPATH;
-    if (LOGDIR==null) LOGDIR="/usr/local/tomcat/logs"+CONTEXTPATH;
+    if (LOGDIR==null) LOGDIR="/tmp"+CONTEXTPATH+"_logs";
     try { N_MAX=Integer.parseInt(conf.getInitParameter("N_MAX")); }
     catch (Exception e) { N_MAX=100; }
-    //CONFIG=conf;
+    PROXY_PREFIX=((conf.getInitParameter("PROXY_PREFIX")!=null)?conf.getInitParameter("PROXY_PREFIX"):"");
   }
   /////////////////////////////////////////////////////////////////////////////
-  public void doGet(HttpServletRequest request,HttpServletResponse response)
-    throws IOException,ServletException
+  public void doGet(HttpServletRequest request, HttpServletResponse response)
+    throws IOException, ServletException
   {
-    doPost(request,response);
+    doPost(request, response);
   }
   /////////////////////////////////////////////////////////////////////////////
   public final static String[] DEMOLINES = new String[]{

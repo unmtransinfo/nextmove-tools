@@ -78,7 +78,7 @@ public class leadmine_servlet extends HttpServlet
       response.setContentType("text/html");
       out=response.getWriter();
       out.print(HtmUtils.HeaderHtm(SERVLETNAME, jsincludes, cssincludes, JavaScript(), "", color1, request));
-      out.print(HtmUtils.FooterHtm(errors, true));
+      out.print(HtmUtils.FooterHtm(errors,true));
     }
     else if (mrequest!=null)         //method=POST, normal operation
     {

@@ -27,7 +27,6 @@ public class leadmine_servlet extends HttpServlet
 {
   private static String SERVLETNAME=null;
   private static String CONTEXTPATH=null;
-  private static String LOGDIR=null;
   private static String APPNAME=null;   // configured in web.xml
   private static String UPLOADDIR=null;   // configured in web.xml
   private static int N_MAX=100; // configured in web.xml
@@ -42,7 +41,6 @@ public class leadmine_servlet extends HttpServlet
   private static String REMOTEHOST=null;
   private static Calendar calendar=Calendar.getInstance();
   private static String datestr=null;
-  private static File logfile=null;
   private static byte[] inbytes=null;
   private static ArrayList<String> texts=new ArrayList<String>();
   private static String color1="#EEEEEE";
@@ -154,71 +152,6 @@ public class leadmine_servlet extends HttpServlet
     errors.add(logo_htm);
 
     inbytes=new byte[1024];
-
-    //Create webapp-specific log dir if necessary:
-    File dout=new File(LOGDIR);
-    if (!dout.exists())
-    {
-      boolean ok=dout.mkdir();
-      System.err.println("LOGDIR creation "+(ok?"succeeded":"failed")+": "+LOGDIR);
-      if (!ok)
-      {
-        errors.add("ERROR: could not create LOGDIR: "+LOGDIR);
-        return false;
-      }
-    }
-
-    String logpath=LOGDIR+"/"+SERVLETNAME+".log";
-    logfile=new File(logpath);
-    if (!logfile.exists())
-    {
-      logfile.createNewFile();
-      logfile.setWritable(true, true);
-      PrintWriter out_log=new PrintWriter(logfile);
-      out_log.println("date\tip\tN");
-      out_log.flush();
-      out_log.close();
-    }
-    if (!logfile.canWrite())
-    {
-      errors.add("ERROR: Log file not writable.");
-      return false;
-    }
-    BufferedReader buff=new BufferedReader(new FileReader(logfile));
-    if (buff==null)
-    {
-      errors.add("ERROR: Cannot open log file.");
-      return false;
-    }
-
-    int n_lines=0;
-    String line=null;
-    String startdate=null;
-    while ((line=buff.readLine())!=null)
-    {
-      ++n_lines;
-      String[] fields=Pattern.compile("\\t").split(line);
-      if (n_lines==2) startdate=fields[0];
-    }
-    if (n_lines>2)
-    {
-      calendar.set(Integer.parseInt(startdate.substring(0, 4)),
-               Integer.parseInt(startdate.substring(4, 6))-1,
-               Integer.parseInt(startdate.substring(6, 8)),
-               Integer.parseInt(startdate.substring(8, 10)),
-               Integer.parseInt(startdate.substring(10, 12)),0);
-
-      DateFormat df=DateFormat.getDateInstance(DateFormat.FULL, Locale.US);
-      errors.add("since "+df.format(calendar.getTime())+", times used: "+(n_lines-1));
-    }
-
-    calendar.setTime(new Date());
-    datestr=String.format("%04d%02d%02d%02d%02d",
-      calendar.get(Calendar.YEAR),
-      calendar.get(Calendar.MONTH)+1,
-      calendar.get(Calendar.DAY_OF_MONTH),
-      calendar.get(Calendar.HOUR_OF_DAY),
-      calendar.get(Calendar.MINUTE));
 
     if (mrequest==null) return true;
 
@@ -534,11 +467,6 @@ public class leadmine_servlet extends HttpServlet
         "<BUTTON TYPE=BUTTON onClick=\"this.form.submit()\">"+
         "download "+fname+" ("+file_utils.NiceBytes(fout.length())+")</BUTTON></FORM>\n");
     }
-
-    PrintWriter out_log=new PrintWriter(new BufferedWriter(new FileWriter(logfile,true)));
-    out_log.printf("%s\t%s\t%d\n", datestr, REMOTEHOST, texts.size());
-    out_log.close();
-
     return;
   }
   /////////////////////////////////////////////////////////////////////////////
@@ -647,8 +575,6 @@ public class leadmine_servlet extends HttpServlet
     UPLOADDIR=conf.getInitParameter("UPLOADDIR");
     if (UPLOADDIR==null)
       throw new ServletException("Please supply UPLOADDIR parameter.");
-    LOGDIR=conf.getInitParameter("LOGDIR")+CONTEXTPATH;
-    if (LOGDIR==null) LOGDIR="/tmp"+CONTEXTPATH+"_logs";
     try { N_MAX=Integer.parseInt(conf.getInitParameter("N_MAX")); }
     catch (Exception e) { N_MAX=100; }
     PROXY_PREFIX=((conf.getInitParameter("PROXY_PREFIX")!=null)?conf.getInitParameter("PROXY_PREFIX"):"");

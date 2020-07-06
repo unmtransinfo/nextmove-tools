@@ -211,7 +211,8 @@ public class leadmine_servlet extends HttpServlet
         return false;
       }
       intxt=new String(inbytes, "utf-8");
-      buff=new BufferedReader(new StringReader(intxt));
+      BufferedReader buff = new BufferedReader(new StringReader(intxt));
+      String line=null;
       texts.clear();
       while ((line=buff.readLine())!=null)
       {

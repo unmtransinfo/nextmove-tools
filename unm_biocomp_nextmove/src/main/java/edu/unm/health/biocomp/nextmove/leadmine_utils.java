@@ -5,6 +5,9 @@ import java.util.zip.GZIPInputStream;
 import java.util.*;
 import java.util.regex.*;
 
+import org.apache.commons.cli.*; // CommandLine, CommandLineParser, HelpFormatter, OptionBuilder, Options, ParseException, PosixParser
+import org.apache.commons.cli.Option.*; // Builder
+
 import edu.unm.health.biocomp.util.*;
 
 import com.nextmovesoftware.leadmine.*; // LeadMine, Entity, EntityCollector, CsvOutput
@@ -26,72 +29,64 @@ import com.nextmovesoftware.leadmine.TsvOutput.*; //
 public class leadmine_utils
 {
   /////////////////////////////////////////////////////////////////////////////
-  private static void Help(String msg)
-  {
-    System.err.println(msg+"\n"
-      +"leadmine_utils - NextMove LeadMine chemical entity recognition\n"
-      +"usage: leadmine_utils [options]\n"
-      +"  required:\n"
-      +"    -i IFILE ........................... input TSV file (.tsv or .tsv.gz)\n"
-      +"  LeadMine options:\n"
-      +"    -config CFILE ...................... input configuration file\n"
-      +"    -spellcorrect ...................... spelling correction\n"
-      +"    -max_correction_distance ........... max correction (Levenshtein) distance\n"
-      +"    -min_corrected_entity_length LEN ... \n"
-      +"    -min_entity_length LEN ............. \n"
-      +"    -lbd LBD ........................... look-behind depth\n"
-      +"  Misc options:\n"
-      +"    -o OFILE ........................... output TSV file [stdout]\n"
-      +"    -textcol COL ....................... # of text/document input column\n"
-      +"    -idcol COL ......................... # of ID input column\n"
-      +"    -unquote ........................... unquote quoted column\n"
-      +"    -v ................................. verbose\n"
-      +"    -vv ................................ very verbose\n"
-      +"    -vvv ............................... very very verbose\n"
-      +"    -h ................................. this help\n");
-    System.exit(1);
-  }
-  private static int verbose=0;
+  private static String APPNAME = "LeadMine_Utils";
   private static String ifile=null;
   private static String ofile=null;
   private static String cfile=null;
   private static Integer textcol=1;
   private static Integer idcol=null;
-  private static boolean unquote=false;
-  private static boolean spellcorrect=false;
-  private static int max_correction_distance=1;
-  private static int min_corrected_entity_length=7;
-  private static int min_entity_length=3;
+  private static Integer max_corr_dist=1;
+  private static Integer min_corr_entity_len=7;
+  private static Integer min_entity_len=3;
+  private static Integer verbose=0;
+  private static Boolean unquote=false;
+  private static Boolean spellcorrect=false;
 
-  /////////////////////////////////////////////////////////////////////////////
-  private static void parseCommand(String args[])
-  {
-    for (int i=0;i<args.length;++i)
-    {
-      if (args[i].equals("-i")) ifile=args[++i];
-      else if (args[i].equals("-o")) ofile=args[++i];
-      else if (args[i].equals("-config")) cfile=args[++i];
-      else if (args[i].equals("-textcol")) textcol=Integer.parseInt(args[++i]);
-      else if (args[i].equals("-idcol")) idcol=Integer.parseInt(args[++i]);
-      else if (args[i].equals("-max_correction_distance")) max_correction_distance=Integer.parseInt(args[++i]);
-      else if (args[i].equals("-min_corrected_entity_length")) min_corrected_entity_length=Integer.parseInt(args[++i]);
-      else if (args[i].equals("-min_entity_length")) min_entity_length=Integer.parseInt(args[++i]);
-      else if (args[i].equals("-unquote")) unquote=true;
-      else if (args[i].equals("-spellcorrect")) spellcorrect=true;
-      else if (args[i].equals("-v")) verbose=1;
-      else if (args[i].equals("-vv")) verbose=2;
-      else if (args[i].equals("-vvv")) verbose=3;
-      else Help("Unknown option: "+args[i]);
-    }
-  }
   /////////////////////////////////////////////////////////////////////////////
   /**   Main for utility application.
   */
-  public static void main(String[] args)
-    throws IOException
+  public static void main(String[] args) throws Exception
   {
-    parseCommand(args);
-    if (ifile==null) Help("Input file required.");
+    String HELPHEADER = APPNAME+": NextMove LeadMine chemical entity recognition";
+    Options opts = new Options();
+    opts.addOption(Option.builder("i").required().hasArg().argName("IFILE").desc("Input file").build());
+    opts.addOption(Option.builder("o").hasArg().argName("OFILE").desc("Output file").build());
+    opts.addOption(Option.builder("config").hasArg().argName("CFILE").desc("Input configuration file").build());
+    opts.addOption(Option.builder("textcol").type(Integer.class).hasArg().argName("TEXTCOL").desc("# of text/document input column").build());
+    opts.addOption(Option.builder("idcol").type(Integer.class).hasArg().argName("IDCOL").desc("# of ID input column").build());
+    opts.addOption(Option.builder("unquote").desc("unquote quoted column").build());
+    opts.addOption(Option.builder("spellcorrect").desc("LeadMine spelling correction").build());
+    opts.addOption(Option.builder("max_corr_dist").type(Integer.class).hasArg().argName("MAX_CORR_DIST").desc("LeadMine Max correction (Levenshtein) distance").build());
+    opts.addOption(Option.builder("min_entity_len").type(Integer.class).hasArg().argName("MIN_E_LEN").desc("LeadMine Min entity length").build());
+    opts.addOption(Option.builder("min_corr_entity_len").type(Integer.class).hasArg().argName("MIN_CE_LEN").desc("LeadMine Min corrected entity length").build());
+    opts.addOption(Option.builder("lbd").type(Integer.class).hasArg().argName("LBD").desc("LeadMine look-behind depth").build());
+    opts.addOption("v", "verbose", false, "Verbose.");
+    opts.addOption("h", "help", false, "Show this help.");
+    HelpFormatter helper = new HelpFormatter();
+    CommandLineParser clip = new PosixParser();
+    CommandLine clic = null;
+    try {
+      clic = clip.parse(opts, args);
+    } catch (ParseException e) {
+      helper.printHelp(APPNAME, HELPHEADER, opts, e.getMessage(), true);
+      System.exit(0);
+    }
+    ifile = clic.getOptionValue("i");
+    if (clic.hasOption("o")) ofile = clic.getOptionValue("o");
+    if (clic.hasOption("config")) cfile = clic.getOptionValue("config");
+    if (clic.hasOption("textcol")) { textcol = (Integer)(clic.getParsedOptionValue("textcol")); }
+    if (clic.hasOption("idcol")) { idcol = (Integer)(clic.getParsedOptionValue("idcol")); }
+    if (clic.hasOption("max_cor_dist")) { max_corr_dist = (Integer)(clic.getParsedOptionValue("max_corr_dist")); }
+    if (clic.hasOption("min_entity_len")) { min_entity_len = (Integer)(clic.getParsedOptionValue("min_entity_len")); }
+    if (clic.hasOption("min_corr_entity_len")) { min_corr_entity_len = (Integer)(clic.getParsedOptionValue("min_corr_entity_len")); }
+    if (clic.hasOption("unquote")) { unquote = true; }
+    if (clic.hasOption("spellcorrect")) { spellcorrect = true; }
+    if (clic.hasOption("v")) { verbose = 1; }
+    if (clic.hasOption("h")) {
+      helper.printHelp(APPNAME, HELPHEADER, opts, "", true);
+      System.exit(0);
+    }
+
     String ifilename = ifile.replaceFirst("^.*/", "");
 
     BufferedReader buff = null;
@@ -103,15 +98,11 @@ public class leadmine_utils
       buff = new BufferedReader(new FileReader(ifile));
     }
 
-    OutputStream fos = (ofile!=null) ?
-      (new FileOutputStream(new File(ofile)))
-      : ((OutputStream)System.out);
-
+    OutputStream fos = (ofile!=null) ? (new FileOutputStream(new File(ofile))) : ((OutputStream)System.out);
     BufferedWriter fob = new BufferedWriter(new OutputStreamWriter(fos));
 
     // Configuration:
-    LeadMineConfig leadMineConfig = (cfile==null) ?
-      (new LeadMineConfig()) : (new LeadMineConfig(new File(cfile)));
+    LeadMineConfig leadMineConfig = (cfile==null) ? (new LeadMineConfig()) : (new LeadMineConfig(new File(cfile)));
 
     SpellingCorrectorConfig spellingCorrectorConfig = leadMineConfig.getSpellingCorrectorConfig();
 
@@ -120,9 +111,9 @@ public class leadmine_utils
       for (CfxDictionary cfxd: leadMineDictionaries) { // Modify per dictionary:
         cfxd.setCaseSensitive(false);
         cfxd.setUseSpellingCorrection(spellcorrect);
-        cfxd.setMaxCorrectionDistance(max_correction_distance);
-        cfxd.setMinimumEntityLength(min_entity_length);
-        cfxd.setMinimumCorrectedEntityLength(min_corrected_entity_length);
+        cfxd.setMaxCorrectionDistance(max_corr_dist);
+        cfxd.setMinimumEntityLength(min_entity_len);
+        cfxd.setMinimumCorrectedEntityLength(min_corr_entity_len);
       }
     }
 
@@ -146,7 +137,7 @@ public class leadmine_utils
         System.err.println(" ; min_corrected_entity_length="+cfxd.getMinimumCorrectedEntityLength());
       }
     }
-    boolean use_spellcorrect = spellcorrect;
+    Boolean use_spellcorrect = spellcorrect;
     for (CfxDictionary cfxd: leadMineDictionaries) {
       use_spellcorrect |= cfxd.useSpellingCorrection();
     }

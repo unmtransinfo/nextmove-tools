@@ -12,29 +12,27 @@ documentation.
 
 
 ```
-mvn exec:java -Dexec.mainClass="edu.unm.health.biocomp.nextmove.leadmine_utils"
+java -jar unm_biocomp_nextmove-0.0.1-SNAPSHOT-jar-with-dependencies.jar
 
-leadmine_utils - NextMove LeadMine chemical entity recognition
-usage: leadmine_utils [options]
-  required:
-    -i IFILE ........................... input TSV file
-  LeadMine options:
-    -config CFILE ...................... input configuration file
-    -spellcorrect ...................... spelling correction
-    -max_correction_distance ........... max correction (Levenshtein) distance
-    -min_corrected_entity_length LEN ... 
-    -min_entity_length LEN ............. 
-    -lbd LBD ........................... look-behind depth
-  Misc options:
-    -o OFILE ........................... output TSV file [stdout]
-    -textcol COL ....................... # of text/document input column
-    -idcol COL ......................... # of ID input column
-    -unquote ........................... unquote quoted column
-    -v ................................. verbose
-    -vv ................................ very verbose
-    -vvv ............................... very very verbose
-    -h ................................. this help
-
+usage: LeadMine_Utils [-config <CFILE>] [-h] -i <IFILE> [-idcol <IDCOL>]
+       [-lbd <LBD>] [-max_corr_dist <MAX_CORR_DIST>] [-min_corr_entity_len
+       <MIN_CE_LEN>] [-min_entity_len <MIN_E_LEN>] [-o <OFILE>]
+       [-spellcorrect] [-textcol <TEXTCOL>] [-unquote] [-v]
+LeadMine_Utils: NextMove LeadMine chemical entity recognition
+ -config <CFILE>                     Input configuration file
+ -h,--help                           Show this help.
+ -i <IFILE>                          Input file
+ -idcol <IDCOL>                      # of ID input column
+ -lbd <LBD>                          LeadMine look-behind depth
+ -max_corr_dist <MAX_CORR_DIST>      LeadMine Max correction (Levenshtein)
+                                     distance
+ -min_corr_entity_len <MIN_CE_LEN>   LeadMine Min corrected entity length
+ -min_entity_len <MIN_E_LEN>         LeadMine Min entity length
+ -o <OFILE>                          Output file
+ -spellcorrect                       LeadMine spelling correction
+ -textcol <TEXTCOL>                  # of text/document input column
+ -unquote                            unquote quoted column
+ -v,--verbose                        Verbose.
 ```
 
 ## Java compilation

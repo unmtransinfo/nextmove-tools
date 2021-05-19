@@ -52,14 +52,14 @@ public class leadmine_utils
     opts.addOption(Option.builder("i").required().hasArg().argName("IFILE").desc("Input file").build());
     opts.addOption(Option.builder("o").hasArg().argName("OFILE").desc("Output file").build());
     opts.addOption(Option.builder("config").hasArg().argName("CFILE").desc("Input configuration file").build());
-    opts.addOption(Option.builder("textcol").type(Integer.class).hasArg().argName("TEXTCOL").desc("# of text/document input column").build());
-    opts.addOption(Option.builder("idcol").type(Integer.class).hasArg().argName("IDCOL").desc("# of ID input column").build());
+    opts.addOption(Option.builder("textcol").hasArg().argName("TEXTCOL").desc("# of text/document input column").build());
+    opts.addOption(Option.builder("idcol").hasArg().argName("IDCOL").desc("# of ID input column").build());
     opts.addOption(Option.builder("unquote").desc("unquote quoted column").build());
     opts.addOption(Option.builder("spellcorrect").desc("LeadMine spelling correction").build());
-    opts.addOption(Option.builder("max_corr_dist").type(Integer.class).hasArg().argName("MAX_CORR_DIST").desc("LeadMine Max correction (Levenshtein) distance").build());
-    opts.addOption(Option.builder("min_entity_len").type(Integer.class).hasArg().argName("MIN_E_LEN").desc("LeadMine Min entity length").build());
-    opts.addOption(Option.builder("min_corr_entity_len").type(Integer.class).hasArg().argName("MIN_CE_LEN").desc("LeadMine Min corrected entity length").build());
-    opts.addOption(Option.builder("lbd").type(Integer.class).hasArg().argName("LBD").desc("LeadMine look-behind depth").build());
+    opts.addOption(Option.builder("max_corr_dist").hasArg().argName("MAX_CORR_DIST").desc("LeadMine Max correction (Levenshtein) distance").build());
+    opts.addOption(Option.builder("min_entity_len").hasArg().argName("MIN_E_LEN").desc("LeadMine Min entity length").build());
+    opts.addOption(Option.builder("min_corr_entity_len").hasArg().argName("MIN_CE_LEN").desc("LeadMine Min corrected entity length").build());
+    opts.addOption(Option.builder("lbd").hasArg().argName("LBD").desc("LeadMine look-behind depth").build());
     opts.addOption("v", "verbose", false, "Verbose.");
     opts.addOption("h", "help", false, "Show this help.");
     HelpFormatter helper = new HelpFormatter();
@@ -74,11 +74,11 @@ public class leadmine_utils
     ifile = clic.getOptionValue("i");
     if (clic.hasOption("o")) ofile = clic.getOptionValue("o");
     if (clic.hasOption("config")) cfile = clic.getOptionValue("config");
-    if (clic.hasOption("textcol")) { textcol = (Integer)(clic.getParsedOptionValue("textcol")); }
-    if (clic.hasOption("idcol")) { idcol = (Integer)(clic.getParsedOptionValue("idcol")); }
-    if (clic.hasOption("max_cor_dist")) { max_corr_dist = (Integer)(clic.getParsedOptionValue("max_corr_dist")); }
-    if (clic.hasOption("min_entity_len")) { min_entity_len = (Integer)(clic.getParsedOptionValue("min_entity_len")); }
-    if (clic.hasOption("min_corr_entity_len")) { min_corr_entity_len = (Integer)(clic.getParsedOptionValue("min_corr_entity_len")); }
+    if (clic.hasOption("textcol")) { textcol = Integer.parseInt(clic.getOptionValue("textcol")); }
+    if (clic.hasOption("idcol")) { idcol = Integer.parseInt(clic.getOptionValue("idcol")); }
+    if (clic.hasOption("max_corr_dist")) { max_corr_dist = Integer.parseInt(clic.getOptionValue("max_corr_dist")); }
+    if (clic.hasOption("min_entity_len")) { min_entity_len = Integer.parseInt(clic.getOptionValue("min_entity_len")); }
+    if (clic.hasOption("min_corr_entity_len")) { min_corr_entity_len = Integer.parseInt(clic.getOptionValue("min_corr_entity_len")); }
     if (clic.hasOption("unquote")) { unquote = true; }
     if (clic.hasOption("spellcorrect")) { spellcorrect = true; }
     if (clic.hasOption("v")) { verbose = 1; }
@@ -167,6 +167,7 @@ public class leadmine_utils
     int i_input=0;
     int n_ner_none=0;
     int n_ner=0;
+    int n_empty=0;
     int n_err=0;
     String line=null;
     line=buff.readLine(); //header
@@ -175,7 +176,7 @@ public class leadmine_utils
     while ((line=buff.readLine())!=null)
     {
       ++i_input;
-      String[] vals = line.split("\t");
+      String[] vals = line.split("\t", tags.length); //limit needed or trailing empty string discarded.
       String doctext = null;
       if (vals.length < textcol) {
         System.err.println("ERROR: insufficient columns ("+vals.length+"<"+textcol+"): ["+i_input+"] \""+line+"\"");
@@ -188,6 +189,9 @@ public class leadmine_utils
         ++n_err;
         continue;
       }
+      if (doctext.isEmpty()) {
+        ++n_empty;
+      }
       String idtext = (idcol==null)?(""+i_input):(vals[idcol-1]);
       if (unquote) {
         doctext = doctext.replaceFirst("^\"(.*)\"$","$1");
@@ -198,7 +202,7 @@ public class leadmine_utils
 
       tsvOut.outputTsv(collector, fos, idtext); //1-line/entity, "" for none
       List<Entity> entities = collector.getEntities();
-      int n_ner_this=entities.size();
+      int n_ner_this = entities.size();
 
       n_ner+=n_ner_this;
       if (n_ner_this==0) {
@@ -211,6 +215,7 @@ public class leadmine_utils
     fob.close();
     fos.close();
     System.err.println("Input docs: "+i_input);
+    System.err.println("Empty docs: "+n_empty);
     System.err.println("Output NER: "+n_ner);
     System.err.println("NER_none count: "+n_ner_none);
     System.err.println("Errors: "+n_err);

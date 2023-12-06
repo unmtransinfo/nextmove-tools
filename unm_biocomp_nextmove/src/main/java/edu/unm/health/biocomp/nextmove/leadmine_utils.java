@@ -47,7 +47,7 @@ public class leadmine_utils
   */
   public static void main(String[] args) throws Exception
   {
-    String HELPHEADER = APPNAME+": NextMove LeadMine chemical entity recognition";
+    String HELPHEADER = APPNAME+": NextMove LeadMine (v"+(new LeadMine()).getVersion()+") chemical entity recognition";
     Options opts = new Options();
     opts.addOption(Option.builder("i").required().hasArg().argName("IFILE").desc("Input file").build());
     opts.addOption(Option.builder("o").hasArg().argName("OFILE").desc("Output file").build());
@@ -103,8 +103,8 @@ public class leadmine_utils
 
     // Configuration:
     LeadMineConfig leadMineConfig = (cfile==null) ? (new LeadMineConfig()) : (new LeadMineConfig(new File(cfile)));
-
     SpellingCorrectorConfig spellingCorrectorConfig = leadMineConfig.getSpellingCorrectorConfig();
+    LeadMine leadMine = new LeadMine(leadMineConfig); // Instantiate LeadMine
 
     List<CfxDictionary> leadMineDictionaries = leadMineConfig.getDictionaries();
     if (spellcorrect) {
@@ -117,11 +117,7 @@ public class leadmine_utils
       }
     }
 
-    // Instantiate LeadMine:
-    LeadMine leadMine = new LeadMine(leadMineConfig);
-
     // Check configuration:
-    System.err.println("LeadMine version: "+leadMine.getVersion());
     if (verbose>1) {
       System.err.println("LeadMine lookBehindDepth: "+spellingCorrectorConfig.getExhaustiveLookBehindDepth());
       Set<String> entityTypes = leadMineConfig.getExpectedEntityTypes();

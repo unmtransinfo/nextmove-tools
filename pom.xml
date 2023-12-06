@@ -5,7 +5,7 @@
 
   <groupId>unmbiocomputing</groupId>
   <artifactId>nextmove-tools</artifactId>
-  <version>0.0.1-SNAPSHOT</version>
+  <version>0.0.2-SNAPSHOT</version>
   <packaging>pom</packaging>
   <name>NEXTMOVE-TOOLS</name>
   <description>CDK client apps, servlets, libs, and external dependencies ready for deployment via WAR-file.</description>

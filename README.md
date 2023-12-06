@@ -3,22 +3,22 @@
 
 Convenience and integration tools build with the NextMove API, a commercial product,
 including a web app utility, and command line app. Refer to
-[NextMove](http://nextmovesoftware.com "NextMove website")
+[NextMove](https://nextmovesoftware.com "NextMove website")
 documentation.
 
 ## Dependencies
 
-* [NextMove](http://nextmovesoftware.com "NextMove website") LeadMine
+* [NextMove](https://nextmovesoftware.com "NextMove website") LeadMine
 
 
 ```
-java -jar unm_biocomp_nextmove-0.0.1-SNAPSHOT-jar-with-dependencies.jar
+java -jar unm_biocomp_nextmove-0.0.2-SNAPSHOT-jar-with-dependencies.jar
 
 usage: LeadMine_Utils [-config <CFILE>] [-h] -i <IFILE> [-idcol <IDCOL>]
        [-lbd <LBD>] [-max_corr_dist <MAX_CORR_DIST>] [-min_corr_entity_len
        <MIN_CE_LEN>] [-min_entity_len <MIN_E_LEN>] [-o <OFILE>]
        [-spellcorrect] [-textcol <TEXTCOL>] [-unquote] [-v]
-LeadMine_Utils: NextMove LeadMine chemical entity recognition
+LeadMine_Utils: NextMove LeadMine (v3.18.1) chemical entity recognition
  -config <CFILE>                     Input configuration file
  -h,--help                           Show this help.
  -i <IFILE>                          Input file
@@ -32,7 +32,7 @@ LeadMine_Utils: NextMove LeadMine chemical entity recognition
  -spellcorrect                       LeadMine spelling correction
  -textcol <TEXTCOL>                  # of text/document input column
  -unquote                            unquote quoted column
- -v,--verbose                        Verbose.
+ -v,--verbose
 ```
 
 ## Java compilation
@@ -59,7 +59,7 @@ specification:
 Libs may be installed into local repo thus:
 
 ```
-mvn install:install-file -Dfile=/usr/local/leadmine-3.14.1/bin/leadmine.jar -DgroupId=nextmove -DartifactId=leadmine -Dversion=3.14.1 -Dpackaging=jar -DlocalRepositoryPath=/home/www/htdocs/.m2/
+mvn install:install-file -Dfile=/usr/local/leadmine-3.18.1/bin/leadmine.jar -DgroupId=nextmove -DartifactId=leadmine -Dversion=3.18.1 -Dpackaging=jar -DlocalRepositoryPath=/home/www/htdocs/.m2/
 ```
 
 Developed at the [UNM](http://www.unm.edu) Translational Informatics Division.

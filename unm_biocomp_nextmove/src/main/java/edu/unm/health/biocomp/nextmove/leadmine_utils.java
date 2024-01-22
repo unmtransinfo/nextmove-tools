@@ -47,7 +47,7 @@ public class leadmine_utils
   */
   public static void main(String[] args) throws Exception
   {
-    String HELPHEADER = APPNAME+": NextMove LeadMine (v"+(new LeadMine()).getVersion()+") chemical entity recognition";
+    String HELPHEADER = APPNAME+": Utility CLI powered by NextMove LeadMine (v"+(new LeadMine()).getVersion()+") chemical and biomedical entity recognition";
     Options opts = new Options();
     opts.addOption(Option.builder("i").required().hasArg().argName("IFILE").desc("Input file").build());
     opts.addOption(Option.builder("o").hasArg().argName("OFILE").desc("Output file").build());
@@ -117,15 +117,17 @@ public class leadmine_utils
       }
     }
 
+    System.err.println(HELPHEADER);
+
     // Check configuration:
     if (verbose>1) {
-      System.err.println("LeadMine lookBehindDepth: "+spellingCorrectorConfig.getExhaustiveLookBehindDepth());
+      System.err.println(APPNAME+": LeadMine lookBehindDepth: "+spellingCorrectorConfig.getExhaustiveLookBehindDepth());
       Set<String> entityTypes = leadMineConfig.getExpectedEntityTypes();
       for (String entityType: entityTypes) {
-        System.err.println("LeadMine entityType: "+entityType);
+        System.err.println(APPNAME+": LeadMine entityType: "+entityType);
       }
       for (CfxDictionary cfxd: leadMineDictionaries) {
-        System.err.print("LeadMine dictionary: "+cfxd.getSource());
+        System.err.print(APPNAME+": LeadMine dictionary: "+cfxd.getSource());
         System.err.print(" ; case_sensitive="+cfxd.isCaseSensitive());
         System.err.print(" ; spellcorrect="+cfxd.useSpellingCorrection());
         System.err.print(" ; max_correction_distance="+cfxd.getMaxCorrectionDistance());
@@ -210,11 +212,11 @@ public class leadmine_utils
     buff.close();
     fob.close();
     fos.close();
-    System.err.println("Input docs: "+i_input);
-    System.err.println("Empty docs: "+n_empty);
-    System.err.println("Output NER: "+n_ner);
-    System.err.println("NER_none count: "+n_ner_none);
-    System.err.println("Errors: "+n_err);
-    System.err.println("total elapsed time: "+time_utils.TimeDeltaStr(t_0,new java.util.Date()));
+    System.err.println(APPNAME+": Input docs: "+i_input);
+    System.err.println(APPNAME+": Empty docs: "+n_empty);
+    System.err.println(APPNAME+": Output NER: "+n_ner);
+    System.err.println(APPNAME+": NER_none count: "+n_ner_none);
+    System.err.println(APPNAME+": Errors: "+n_err);
+    System.err.println(APPNAME+": total elapsed time: "+time_utils.TimeDeltaStr(t_0,new java.util.Date()));
   }
 }

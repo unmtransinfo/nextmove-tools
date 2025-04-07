@@ -6,7 +6,7 @@
   <parent>
     <groupId>unmbiocomputing</groupId>
     <artifactId>nextmove-tools</artifactId>
-    <version>0.0.3-SNAPSHOT</version>
+    <version>0.0.4-SNAPSHOT</version>
   </parent>
 
   <artifactId>nextmove_war</artifactId>
@@ -18,7 +18,7 @@
     <dependency> <!-- Others via transitive -->
       <groupId>unmbiocomputing</groupId>
       <artifactId>unm_biocomp_nextmove</artifactId>
-      <version>0.0.3-SNAPSHOT</version>
+      <version>0.0.4-SNAPSHOT</version>
     </dependency>
   </dependencies>
   

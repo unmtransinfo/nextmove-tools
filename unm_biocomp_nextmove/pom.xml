@@ -121,6 +121,27 @@
         </executions>
       </plugin>
 
+      <!-- Trying to fix this:
+Falling back to scanning the `org.apache.logging.log4j.core` package.
+See https://logging.apache.org/log4j/2.x/faq.html#plugin-descriptors for details.
+2025-04-08T16:26:55.446913146Z main WARN No Log4j plugin descriptor was found in the classpath.
+      -->
+      <plugin>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-maven-plugin</artifactId>
+        <configuration>
+          <mainClass>${start.class}</mainClass>
+          <layout>ZIP</layout>
+        </configuration>
+        <executions>
+          <execution>
+            <goals>
+              <goal>repackage</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+
     </plugins>
   </build>
 

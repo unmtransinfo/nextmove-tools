@@ -10,12 +10,19 @@ cwd=$(pwd)
 #
 NM_ROOT="/home/app/nextmove"
 #
-COMPILE_JAR=${NM_ROOT}/leadmine-3.12/DictionaryBuilding/CompileCfx/compilecfx-3.12.jar
+COMPILE_JAR=${NM_ROOT}/leadmine-4.2/bin/compilecfx.jar
 #
 DATADIR="$cwd/data"
 #
-SRCDICT="/home2/jjyang/projects/drugcentral/data/mesh_disease_lower.txt"
+SRCDICT="$DATADIR/mesh_disease.txt"
 DICTNAME="meshdisease"
+if [ ! -e $SRCDICT ]; then
+	cat $DATADIR/mesh_disease.tsv \
+		|sed '1d' \
+		|awk -F '\t' '{print $3}' \
+		|tr "[:upper:]" "[:lower:]" \
+		>$SRCDICT
+fi
 #
 printf "Source dictionary: %s\n" $(basename $SRCDICT)
 #
@@ -25,11 +32,11 @@ printf "%s terms: %d\n" $(basename $SRCDICT) $(cat $SRCDICT |wc -l)
 #
 echo "Compiling LeadMine dictionary..."
 #
-java -jar $COMPILE_JAR -i $SRCDICT $CFXFILE
+java -jar $COMPILE_JAR -i $SRCDICT -o $CFXFILE
 #
 ###
 #
-LEADMINE_JAR="${NM_ROOT}/leadmine-3.12/LeadMine/leadmine-3.12.jar"
+LEADMINE_JAR="${NM_ROOT}/leadmine-4.2/bin/leadmine.jar"
 #
 CORPUSNAME="indications"
 #
@@ -46,10 +53,12 @@ __EOF__
 ) \
 	>$cfgfile
 #
-csv_utils.py \
-	--i ~/projects/drugcentral/data/label_indications.csv \
-	--coltag "TEXT" --extractcol \
-	>$DATADIR/label_indications.txt
+psql -P pager=off -qAF $'\t' -h unmtid-dbs.net -p 5433 -d drugcentral -U drugman \
+		-c "SELECT DISTINCT concept_name FROM omop_relationship WHERE omop_relationship.relationship_name = 'indication'" \
+	|sed -e '1d' \
+	|grep -v '^([0-9]* rows)$' \
+	|grep -v '^\s*$' \
+	>$DATADIR/drugcentral_label_indications.txt
 #
 ###
 #
@@ -58,9 +67,8 @@ nthreads="4"
 echo "LeadMining..."
 #
 java -jar $LEADMINE_JAR \
-	-c $cfgfile -t $nthreads \
-	-tsv \
-	$DATADIR/label_indications.txt \
-	>data/${DICTNAME}-${CORPUSNAME}_test.tsv
+	-en -c $cfgfile -t $nthreads -tsv \
+	$DATADIR/drugcentral_label_indications.txt \
+	>$DATADIR/${DICTNAME}-${CORPUSNAME}_test.tsv
 #
 #
